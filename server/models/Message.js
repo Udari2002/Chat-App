@@ -22,7 +22,9 @@ const messageSchema = new mongoose.Schema({
   seen: {
     type: Boolean,
     default: false
-  }
+  },
+  deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  deletedForEveryoneAt: { type: Date, default: null }
 }, {
   timestamps: true
 });

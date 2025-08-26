@@ -39,6 +39,36 @@ router.get('/:receiverId', auth, async (req, res) => {
   }
 });
 
+// Delete single message (for me or for everyone if within 2 minutes)
+router.delete('/item/:messageId', auth, async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { forEveryone = false } = req.query;
+
+    const msg = await Message.findById(messageId);
+    if (!msg) return res.status(404).json({ message: 'Message not found' });
+
+    const isSender = String(msg.senderId) === String(req.user._id);
+    const withinWindow = Date.now() - new Date(msg.createdAt).getTime() <= 2 * 60 * 1000;
+
+    if (forEveryone && isSender && withinWindow) {
+      msg.text = '';
+      msg.image = '';
+      msg.deletedForEveryoneAt = new Date();
+      await msg.save();
+      return res.json({ message: 'Deleted for everyone' });
+    }
+
+    // Delete for me only
+    if (!msg.deletedFor) msg.deletedFor = [];
+    if (!msg.deletedFor.includes(req.user._id)) msg.deletedFor.push(req.user._id);
+    await msg.save();
+    return res.json({ message: 'Deleted for me' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Send a message
 router.post('/', auth, async (req, res) => {
   try {
@@ -78,6 +108,24 @@ router.put('/seen/:senderId', auth, async (req, res) => {
     );
 
     res.json({ message: 'Messages marked as seen' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete entire conversation between current user and receiver
+router.delete('/:receiverId', auth, async (req, res) => {
+  try {
+    const { receiverId } = req.params;
+
+    await Message.deleteMany({
+      $or: [
+        { senderId: req.user._id, receiverId },
+        { senderId: receiverId, receiverId: req.user._id }
+      ]
+    });
+
+    res.json({ message: 'Conversation deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

@@ -13,6 +13,8 @@ A modern, real-time chat application built with the MERN stack (MongoDB, Express
 - 📍 Typing indicators
 - 🔔 Message notifications
 - 📸 Media sharing support
+- 🗑️ Message deletion (for me/for everyone)
+- 💬 Delete entire conversations
 
 ## Tech Stack
 
@@ -77,7 +79,7 @@ The frontend is configured to connect to `http://localhost:5000` by default. If 
 #### Start the backend server
 ```bash
 cd server
-npm run dev
+npm start
 ```
 
 #### Start the frontend development server
@@ -108,6 +110,8 @@ The application will be available at:
 - **Online Status**: See who's online in real-time
 - **Typing Indicators**: See when someone is typing
 - **Profile Management**: Edit your profile details
+- **Image Sharing**: Send images in chat
+- **Message Deletion**: Delete individual messages or entire conversations
 
 ## API Endpoints
 
@@ -118,7 +122,6 @@ The application will be available at:
 
 ### Users
 - `GET /api/users` - Get all users (except current user)
-- `GET /api/users/:id` - Get user by ID
 - `PUT /api/users/profile` - Update user profile
 - `PUT /api/users/online` - Update online status
 
@@ -127,6 +130,8 @@ The application will be available at:
 - `POST /api/messages` - Send a message
 - `PUT /api/messages/seen/:senderId` - Mark messages as seen
 - `GET /api/messages/unread/count` - Get unread message count
+- `DELETE /api/messages/:receiverId` - Delete entire conversation
+- `DELETE /api/messages/item/:messageId` - Delete single message
 
 ## Socket.IO Events
 
@@ -135,11 +140,15 @@ The application will be available at:
 - `send_message` - Send a message
 - `typing` - User is typing
 - `stop_typing` - User stopped typing
+- `delete_message` - Delete a message
+- `delete_conversation` - Delete entire conversation
 
 ### Server to Client
 - `receive_message` - Receive a new message
 - `user_typing` - User is typing
 - `user_stop_typing` - User stopped typing
+- `message_deleted` - Message was deleted
+- `conversation_deleted` - Conversation was deleted
 
 ## Project Structure
 

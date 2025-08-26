@@ -80,6 +80,12 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('delete_conversation', (data) => {
+    if (data?.receiverId) {
+      socket.to(data.receiverId).emit('conversation_deleted', data);
+    }
+  });
+
   socket.on('typing', (data) => {
     if (data?.receiverId) {
       socket.to(data.receiverId).emit('user_typing', data);
@@ -89,6 +95,12 @@ io.on('connection', (socket) => {
   socket.on('stop_typing', (data) => {
     if (data?.receiverId) {
       socket.to(data.receiverId).emit('user_stop_typing', data);
+    }
+  });
+
+  socket.on('delete_message', (data) => {
+    if (data?.receiverId) {
+      socket.to(data.receiverId).emit('message_deleted', data);
     }
   });
 
