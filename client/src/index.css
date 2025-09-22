@@ -5,7 +5,117 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom font-weight classes */
+/* Base styles */
+@layer base {
+  * {
+    @apply font-outfit;
+  }
+  
+  body {
+    @apply bg-gray-900 text-white antialiased;
+  }
+}
+
+/* Component styles for your chat app */
+@layer components {
+  /* Chat container styles */
+  .chat-container {
+    @apply bg-primary-500/10 backdrop-blur-xl border border-gray-600 rounded-2xl;
+  }
+  
+  .chat-sidebar {
+    @apply bg-primary-500/10 backdrop-blur-xl border-r border-gray-600;
+  }
+  
+  .chat-surface {
+    @apply bg-chat-bg rounded-lg p-4 border border-chat-border;
+  }
+  
+  /* Message styles */
+  .message-sent {
+    @apply bg-primary-500 text-white rounded-lg rounded-br-sm p-3 max-w-xs ml-auto;
+  }
+  
+  .message-received {
+    @apply bg-chat-bg text-white rounded-lg rounded-bl-sm p-3 max-w-xs;
+  }
+  
+  /* User item styles */
+  .user-item {
+    @apply flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-chat-bg/50;
+  }
+  
+  .user-item-active {
+    @apply bg-chat-bg;
+  }
+  
+  /* Input styles */
+  .chat-input {
+    @apply bg-chat-bg border border-chat-border rounded-full px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  /* Button styles */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-chat-bg hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg border border-chat-border transition-colors duration-200;
+  }
+  
+  /* Online indicator */
+  .online-indicator {
+    @apply absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-chat-bg;
+  }
+  
+  /* Scrollbar styles */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(129, 133, 178, 0.3) transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(129, 133, 178, 0.3);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(129, 133, 178, 0.5);
+  }
+}
+
+/* Utility styles */
+@layer utilities {
+  /* Hide scrollbar completely */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Glass effect */
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 to-purple-400 bg-clip-text text-transparent;
+  }
+}
+
+/* Custom font-weight classes (keep for backward compatibility) */
 .outfit-light {
   font-family: "Outfit", sans-serif;
   font-optical-sizing: auto;
@@ -32,8 +142,4 @@
   font-optical-sizing: auto;
   font-weight: 900;                                                   
   font-style: normal;
-}
-
-::-webkit-scrollbar{
-    display: none;                                                                                                                                                                                                                                                                                                                                                                                                                        
 }
