@@ -8,10 +8,11 @@ const router = express.Router();
 // Get all users (except current user)
 router.get('/', auth, async (req, res) => {
   try {
+      // Find all users where ID is not equal to current user's ID
     const users = await User.find({ _id: { $ne: req.user._id } })
-      .select('-password')
-      .sort({ createdAt: -1 });
-    res.json(users);
+      .select('-password')// Exclude password field from results
+      .sort({ createdAt: -1 }); // Sort by creation date (newest first)
+    res.json(users); // Return users as JSON response
   } catch (error) {
     console.error('GET /api/users error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -21,15 +22,18 @@ router.get('/', auth, async (req, res) => {
 // Update online status (current user)
 router.put('/online', auth, async (req, res) => {
   try {
-    const { isOnline } = req.body;
+    const { isOnline } = req.body; // Extract isOnline from request body
+     // Validate input
     if (typeof isOnline !== 'boolean') {
       return res.status(400).json({ message: 'isOnline (boolean) is required' });
     }
+      // Get user ID from auth middleware (supports different possible field names)
 
     const userId = req.user?._id || req.user?.id || req.user?.userId;
     if (!userId) {
       return res.status(401).json({ message: 'Invalid auth token payload' });
     }
+      // Update user's online status and lastSeen timestamp
 
     const updated = await User.findByIdAndUpdate(
       userId,

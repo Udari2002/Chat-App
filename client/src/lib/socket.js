@@ -10,7 +10,7 @@ class SocketService {
 
   connect(token) {
     if (this.socket) {
-      this.socket.disconnect();
+      this.socket.disconnect();// Disconnect existing connection if any
     }
 
     this.socket = io(SOCKET_URL, {
