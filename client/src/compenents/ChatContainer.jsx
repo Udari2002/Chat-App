@@ -1,13 +1,14 @@
-import React, {use, useEffect, useRef} from 'react'
+import React, {useEffect} from 'react'
 import assets, { messagesDummyData } from '../assets/assets'
+import { formatMessageTime } from '../lib/utils';
 
 const ChatContainer = ({selectedUser,setSelectedUser}) => {
 
   const scrollEnd = React.useRef();
 
   useEffect(() => {
-    if(scrollEnd.current){
-      scrollEnd.current.scrollIntoView({behavior: 'smooth'});
+    if (scrollEnd.current) {
+      scrollEnd.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
 
@@ -23,6 +24,7 @@ const ChatContainer = ({selectedUser,setSelectedUser}) => {
         <img onClick={()=> setSelectedUser(null)} src={assets.arrow_icon} alt="" className='md:hidden max-w-7' />
         <img src={assets.help_icon} alt="" className='max-md:hidden max-w-5' />
       </div>
+
       {/*-------------CHAT AREA---------------- */}
       <div className='flex flex-col h-[calc(100%-120px)] overflow-y-scroll p-3 pb-6'>
         {messagesDummyData.map((msg,index)=>(
@@ -33,17 +35,36 @@ const ChatContainer = ({selectedUser,setSelectedUser}) => {
               <img src={msg.image} alt="" className='max-w-[230px] border border-gray-700 rounded-lg overflow-hidden mb-8' />
             ):(
               <p className={`p-2 max-w-[200px] md:text-sm font-light rounded-lg mb-8 break-all bg-violet-500/30 text-white
-                ${msg.senderId === '680f50e4f10f3cd28382ecf9' ? 'rounded-br-none' : 'roundedn-bl-none'}`}>{msg.text}</p>
+                ${msg.senderId === '680f50e4f10f3cd28382ecf9' ? 'rounded-br-none' : 'rounded-bl-none'}`}>{msg.text}</p>
             )}
             <div className='text-center text-xs'>
-               <img src={msg.senderId === '680f50e4f10f3cd28382ecf9' ? assets.avatar_icon : assets.profile_john} alt="" className='w-7 rounded-full' />
+               <img src={msg.senderId === '680f50e4f10f3cd28382ecf9' ? assets.avatar_icon : assets.profile_martin} alt="" className='w-7 rounded-full' />
                <p className='text-gray-500'>
-                {msg.createdAt}
-               </p>
+                {formatMessageTime(msg.createdAt)}</p>
             </div>
           </div>
         ))}
         <div ref={scrollEnd}></div> 
+      </div>
+
+
+      {/*-------------BOTTOM AREA---------------- */}
+      
+      <div className='absolute bottom-0 left-0 right-0 flex items-center gap-3 p-3'>
+        <div className='flex-1 flex items-center bg-gray-800/60 backdrop-blur-lg px-4 py-3 rounded-full border border-gray-600/30'>
+          <input 
+            type="text" 
+            placeholder='Send a message'
+            className='flex-1 text-sm bg-transparent border-none placeholder-gray-400 outline-none text-white' 
+          />
+          <input type="file" id='image' accept='image/png, image/jpeg' hidden />
+          <label htmlFor="image">
+            <img src={assets.gallery_icon} alt="" className='w-5 mr-2 cursor-pointer opacity-70 hover:opacity-100' />
+          </label>
+        </div>
+         <button className='bg-violet-600 hover:bg-violet-700 p-3 rounded-full transition-colors shadow-lg'>
+           <img src={assets.send_button} alt="" className='w-5 h-5 cursor-pointer'/>
+         </button>
       </div>
     </div>
   ) : (
