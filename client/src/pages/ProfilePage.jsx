@@ -2,17 +2,54 @@ import React from 'react'
 import assets from '../assets/assets'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useContext } from 'react'
+import { AuthContext } from '../../context/AuthContext'
+
 
 const ProfilePage = () => {
 
-  const [selectedImg, setSelectedImg] = React.useState(null);
-  const navigate = useNavigate();
-  const [bio, setBio] = React.useState('Hi there! I am using ChatApp.');
-  const [name, setName] = React.useState('Martin Johnson');
+  const {authUser, updateProfile} = useContext(AuthContext)
 
-  const handleSubmit =async (e) => {
+  const [selectedImg, setSelectedImg] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const navigate = useNavigate();
+  const [bio, setBio] = React.useState(authUser?.bio || '');
+  const [name, setName] = React.useState(authUser?.fullName || '');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/');
+    setLoading(true);
+    
+    try {
+      if(!selectedImg){
+        console.log('Updating profile without image:', {fullName: name, bio});
+        await updateProfile({fullName: name, bio});
+        navigate('/');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(selectedImg);
+      reader.onload = async () => {
+        try {
+          const base64Image = reader.result;
+          console.log('Updating profile with image, size:', base64Image.length);
+          await updateProfile({fullName: name, bio, profilePic: base64Image});
+          navigate('/');
+        } catch (error) {
+          console.error('Error updating profile with image:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      reader.onerror = () => {
+        console.error('Error reading file');
+        setLoading(false);
+      };
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setLoading(false);
+    }
   }
 
   return (
@@ -35,10 +72,13 @@ const ProfilePage = () => {
            className='bg-gray-800/60 backdrop-blur-lg border border-gray-600 rounded-lg px-4 py-3 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none' 
            rows={4}></textarea>
 
-           <button type='submit' className='bg-gradient-to-r from-purple-400 to-violet-600 text-white p-2 rounded-full
-           text-lg cursor-pointer'>Save</button>
+           <button type='submit' disabled={loading} className='bg-gradient-to-r from-purple-400 to-violet-600 text-white p-2 rounded-full
+           text-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+             {loading ? 'Saving...' : 'Save'}
+           </button>
         </form>
-        <img className='max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10' src={assets.logo_icon} alt="" />
+        <img className={`max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10 ${selectedImg && 'rounded-full'}`}
+         src={authUser?.profilePic ||assets.logo_icon} alt="" />
       </div>
 
     </div> 

@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import assets from '../assets/assets'
+import { AuthContext } from '../../context/AuthContext'
 
 const LoginPage = () => {
 
@@ -10,6 +11,8 @@ const LoginPage = () => {
  const [bio, setBio] = React.useState('')
  const [isDataSubmitted, setIsDataSubmitted] = React.useState(false);
 
+ const { login, authUser } = useContext(AuthContext)
+
 
  const onSubmitHandler = (event) =>{
    event.preventDefault();
@@ -17,13 +20,15 @@ const LoginPage = () => {
    if(currState === 'Sign Up' && !isDataSubmitted){
      setIsDataSubmitted(true)
      return;
-   } else {
-     // Handle Login
-     console.log({ email, password });
-   }
-
-   setIsDataSubmitted(true);
- }
+   } 
+   
+   // Call the login function from AuthContext
+   const endpoint = currState === "Sign Up" ? 'signup' : 'login';
+   const credentials = { fullName, email, password, bio };
+   
+   console.log('Submitting to:', endpoint, credentials);
+   login(endpoint, credentials);
+  }
 
   return (
     <div className='min-h-screen bg-cover bg-center flex items-center justify-center gap-8
@@ -78,7 +83,7 @@ const LoginPage = () => {
               <p>I agree to the Terms and Conditions</p>
             </div>
 
-            <div className='lex flex-col gap-2'>
+            <div className='flex flex-col gap-2'>
               {currState === 'Sign Up' ? (
                 <p className='text-sm text-gray-600'>Already have an account?
                  <span className='text-violet-500 cursor-pointer font-medium'
