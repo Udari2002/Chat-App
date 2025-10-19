@@ -120,6 +120,7 @@ export const AuthProvider = ({ children }) => {
         axios,
         authUser,
         onlineUsers,
+        socket,
         login,
         logout,
         updateProfile
