@@ -1,4 +1,4 @@
-import Message from "../models/message.js";
+import Message from "../models/Message.js";
 import User from "../models/user.js";
 import cloudinary from "../lib/cloudinary.js";
 import { UserSocketMap, io } from "../server.js";
@@ -10,7 +10,11 @@ import { UserSocketMap, io } from "../server.js";
 export const getUserForSidebar = async (req, res) => {
     try {
         const userId = req.user._id;
+        console.log('getUserForSidebar - Current user ID:', userId);
+        
         const filteredUsers = await User.find({ _id: { $ne: userId } }).select('-password');
+        console.log('getUserForSidebar - Found users:', filteredUsers.length);
+        console.log('getUserForSidebar - Users:', filteredUsers.map(u => u.fullName));
 
         //count number of messages not seen
         const unseenMessages = {};
@@ -21,9 +25,11 @@ export const getUserForSidebar = async (req, res) => {
             }
         })
         await Promise.all(promises);
-        res.jason({success:true, users: filteredUsers, unseenMessages});
+        
+        console.log('getUserForSidebar - Sending response with', filteredUsers.length, 'users');
+        res.json({success:true, users: filteredUsers, unseenMessages});
     }catch (error) {
-        console.log(error.message);
+        console.log('getUserForSidebar error:', error.message);
         res.json({ success: false, message: error.message });
     }
 }

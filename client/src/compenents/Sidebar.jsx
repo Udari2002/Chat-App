@@ -6,20 +6,30 @@ import { ChatContext } from '../../context/ChatContext';
 
 const Sidebar = () => {
 
-  const {getUsers,users,selectedUser,setSelectedUser,
-    unseenMessages,setUnseenMessages} = useContext(ChatContext);
+  const chatContext = useContext(ChatContext);
+  const authContext = useContext(AuthContext);
+  
+  // Add defensive checks for context values
+  if (!chatContext || !authContext) {
+    return <div className='text-white p-4'>Loading...</div>;
+  }
 
-  const {logout, onlineUsers} = useContext(AuthContext);
+  const {getUsers, users = [], selectedUser, setSelectedUser, unseenMessages = {}, setUnseenMessages} = chatContext;
+  const {logout, onlineUsers = []} = authContext;
 
   const [input,setInput]=useState("");
    
    const navigate = useNavigate();
 
-   const filteredUsers = input ? users.filter((user) => user.fullName.toLowerCase().includes(input.toLowerCase())) : users;
+   const filteredUsers = input && users && Array.isArray(users) ? 
+     users.filter((user) => user.fullName && user.fullName.toLowerCase().includes(input.toLowerCase())) : 
+     users || [];
 
    useEffect(() => {
-     getUsers();
-   },[onlineUsers])
+     if (getUsers && typeof getUsers === 'function') {
+       getUsers();
+     }
+   },[getUsers, onlineUsers])
 
   return (
     <div className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white
@@ -47,27 +57,31 @@ const Sidebar = () => {
       </div>
 
       <div className='flex flex-col'>
-        {filteredUsers.map((user,index)=>(
-          <div onClick={() => {setSelectedUser(user)}}
-            key={index} className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm
+        {Array.isArray(filteredUsers) && filteredUsers.length > 0 ? filteredUsers.map((user,index)=>(
+          <div onClick={() => {setSelectedUser && setSelectedUser(user)}}
+            key={user._id || index} className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm
             ${selectedUser?._id === user._id && 'bg-[#282142]/50'}`}>
               
             <img src={user?.profilePic || assets.avatar_icon} alt="" className='w-[35px] aspect-[1/1]
             rounded-full' />
 
             <div className='flex flex-col leading-5'>
-              <p>{user.fullName}</p>
+              <p>{user.fullName || 'Unknown User'}</p>
               {
-                onlineUsers.includes(user._id)
+                Array.isArray(onlineUsers) && onlineUsers.includes(user._id)
                 ?<span className='text-green-400 text-xs'>Online</span>
                 :<span className='text-neutral-400 text-xs'>Offline</span>
               }
 
             </div>
-            {unseenMessages[user._id] > 0 && <p className='absolute top-4 right-4 text-xs h-5 w-5 flex justify-center
+            {unseenMessages && unseenMessages[user._id] > 0 && <p className='absolute top-4 right-4 text-xs h-5 w-5 flex justify-center
             items-center rounded-full bg-violet-500/50'>{unseenMessages[user._id]}</p>}
           </div>
-        ))}
+        )) : (
+          <div className='text-center text-gray-400 p-4'>
+            {users && users.length === 0 ? 'No users found' : 'Loading users...'}
+          </div>
+        )}
 
       </div>
     </div>

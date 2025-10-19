@@ -12,17 +12,29 @@ export const ChatProvider = ({children}) => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [unseenMessages, setUnseenMessages] = useState({});
 
-    const {socket, axios} = useContext(AuthContext);
+    const authContext = useContext(AuthContext);
+    const socket = authContext?.socket;
+    const axios = authContext?.axios;
     
     //function to get all users for sidebar
     const getUsers =async () => {
         try{
+            if (!axios) {
+                console.log('Axios not available yet');
+                return;
+            }
+            console.log('Calling getUsers API...');
             const {data} = await axios.get("/api/message/users");
+            console.log('API response:', data);
             if(data.success){
                 setUsers(data.users);
                 setUnseenMessages(data.unseenMessages);
+                console.log('Users set:', data.users);
+            } else {
+                console.error('API returned success:false', data.message);
             }
         }catch(error){
+            console.error('getUsers error:', error);
             toast.error(error.response?.data?.message || error.message);
         }
     }
