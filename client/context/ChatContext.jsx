@@ -112,11 +112,11 @@ export const ChatProvider = ({children}) => {
        messages,
        users,
        selectedUser,
-       unseenMessages,
        getUsers,
        getMessages,
        sendMessage,
        setSelectedUser,
+       unseenMessages,
        setUnseenMessages,
        markMessagesAsSeen
     }), [messages, users, selectedUser, unseenMessages]);
