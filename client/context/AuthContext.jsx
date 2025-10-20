@@ -88,18 +88,47 @@ export const AuthProvider = ({ children }) => {
     }
     //Connect socket function to handle socket connection and online users updates
     const connectSocket = (userData) => {
-        if(!userData || socket?.connected) return;
-        const newSocket = io(backendURL, {
-            query:{
-                userId: userData._id,
+        try{
+            if(!userData){
+                console.warn('connectSocket: missing userData');
+                return;
             }
-        });
-        newSocket.connect();
-        setSocket(newSocket);
+            if(socket?.connected){
+                console.log('connectSocket: socket already connected');
+                return;
+            }
+            console.log('connectSocket: creating socket for user', userData._id, 'to', backendURL);
+            const newSocket = io(backendURL, {
+                query: { userId: userData._id },
+                transports: ['websocket'],
+                path: '/socket.io',
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+            });
 
-        newSocket.on('getOnlineUsers', (userIds) => {
-            setOnlineUsers(userIds);
-        });
+            newSocket.on('connect', () => {
+                console.log('socket connected:', newSocket.id);
+            });
+            newSocket.on('connect_error', (err) => {
+                console.error('socket connect_error:', err?.message || err);
+            });
+            newSocket.on('error', (err) => {
+                console.error('socket error:', err);
+            });
+            newSocket.on('disconnect', (reason) => {
+                console.warn('socket disconnected:', reason);
+            });
+
+            newSocket.on('getOnlineUsers', (userIds) => {
+                console.log('getOnlineUsers received:', userIds);
+                setOnlineUsers(Array.isArray(userIds) ? userIds : []);
+            });
+
+            setSocket(newSocket);
+        }catch(e){
+            console.error('connectSocket failed:', e);
+        }
     }
 
     useEffect(() => {
@@ -108,6 +137,23 @@ export const AuthProvider = ({ children }) => {
         }
         checkAuth();
     },[])
+
+    // Ensure every axios request carries the latest token
+    useEffect(() => {
+        const reqInterceptor = axios.interceptors.request.use(
+            (config) => {
+                const latestToken = localStorage.getItem('token');
+                if (latestToken) {
+                    config.headers = config.headers || {};
+                    config.headers['token'] = latestToken;
+                }
+                return config;
+            },
+            (error) => Promise.reject(error)
+        );
+
+        return () => axios.interceptors.request.eject(reqInterceptor);
+    }, []);
 
     // Check authentication on component mount
     useEffect(() => {
