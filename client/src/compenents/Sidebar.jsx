@@ -32,7 +32,7 @@ const Sidebar = () => {
    },[getUsers, onlineUsers])
 
   return (
-    <div className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white
+    <div className={`bg-[#8185B2]/10 h-full p-5 overflow-y-auto text-white border-r border-gray-700/40 rounded-none
      ${selectedUser ?"max-md:hidden":''}`}>
       <div className='pb-5'>
         <div className='flex justify-between items-center'>
@@ -58,7 +58,9 @@ const Sidebar = () => {
 
       <div className='flex flex-col'>
         {Array.isArray(filteredUsers) && filteredUsers.length > 0 ? filteredUsers.map((user,index)=>(
-          <div onClick={() => {setSelectedUser && setSelectedUser(user)}}
+          <div onClick={() => {setSelectedUser && setSelectedUser(user);
+            setUnseenMessages(prev=>({...prev,[user._id]:0}))
+          }}
             key={user._id || index} className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm
             ${selectedUser?._id === user._id && 'bg-[#282142]/50'}`}>
               

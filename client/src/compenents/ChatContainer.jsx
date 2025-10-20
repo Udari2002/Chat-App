@@ -54,11 +54,11 @@ const handleSendImage = async(e) => {
   }, [messages]);
 
   return selectedUser ? (
-    <div className='h-full overflow-scroll relative backdrop-blur-lg'>
+  <div className='h-full flex flex-col bg-transparent border-r border-gray-700/40'>
 
 
       {/*-------------HEADER---------------- */}
-      <div className='flex items-center gap-3 py-3 mx-4 border-b border-stone-500'>
+  <div className='flex items-center gap-3 py-4 px-4 border-b border-gray-700/40'>
         <img src={selectedUser.profilePic || assets.avatar_icon} alt="" className='w-8 h-8 rounded-full object-cover'/>
         <p className='flex-1 text-lg text-white flex items-center gap-2'>
           {selectedUser.fullName}
@@ -74,13 +74,13 @@ const handleSendImage = async(e) => {
 
 
       {/*-------------CHAT AREA---------------- */}
-      <div className='flex flex-col h-[calc(100%-120px)] overflow-y-scroll p-3 pb-6'>
+  <div className='flex flex-col flex-1 overflow-y-auto p-3 pb-28'>
   {messages.map((msg,index)=>(
           <div key={index} className={`flex items-end gap-2 justify-end ${msg.senderId !== authUser._id &&
              'flex-row-reverse'
           }`}>
             {msg.image ? (
-              <img src={msg.image} alt="" className='max-w-[230px] border border-gray-700 rounded-lg overflow-hidden mb-8' />
+              <img src={msg.image} alt="" className='max-w-[230px] max-h-[230px] border border-gray-700 rounded-lg overflow-hidden mb-8 object-contain bg-black/20' />
             ):(
               <p className={`p-2 max-w-[200px] md:text-sm font-light rounded-lg mb-8 break-all bg-violet-500/30 text-white
                 ${msg.senderId === authUser._id ? 'rounded-br-none' : 'rounded-bl-none'}`}>{msg.text}</p>
@@ -98,15 +98,15 @@ const handleSendImage = async(e) => {
 
       {/*-------------BOTTOM AREA---------------- */}
       
-      <div className='absolute bottom-0 left-0 right-0 flex items-center gap-3 p-3'>
-        <div className='flex-1 flex items-center bg-gray-800/60 backdrop-blur-lg px-4 py-3 rounded-full border border-gray-600/30'>
+      <div className='sticky bottom-0 left-0 right-0 flex items-center gap-3 p-3 bg-transparent'>
+        <div className='flex-1 flex items-center bg-gray-800/60 backdrop-blur px-4 py-3 rounded-full border border-gray-600/30'>
           <input onChange={(e) => setInput(e.target.value)} value={input} 
             onKeyDown={(e) =>e.key === 'Enter'? handleSendMessage(e) : null}
             type="text" 
             placeholder='Send a message'
             className='flex-1 text-sm bg-transparent border-none placeholder-gray-400 outline-none text-white' 
           />
-          <input onChange={handleSendImage} type="file" id='image' accept='image/png, image/jpeg' hidden />
+          <input onChange={handleSendImage} type="file" id='image' accept='image/*' hidden />
           <label htmlFor="image">
             <img src={assets.gallery_icon} alt="" className='w-5 mr-2 cursor-pointer opacity-70 hover:opacity-100' />
           </label>

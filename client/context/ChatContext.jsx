@@ -70,7 +70,14 @@ export const ChatProvider = ({children}) => {
         if(!socket) return;
 
         socket.on("newMessage", (newMessage) => {
-            if(selectedUser && newMessage.senderId === selectedUser._id){
+            console.log('socket:newMessage', {
+                id: newMessage?._id,
+                from: newMessage?.senderId,
+                to: newMessage?.receiverId,
+                hasImage: !!newMessage?.image,
+                hasText: !!newMessage?.text,
+            });
+            if (selectedUser && String(newMessage.senderId) === String(selectedUser._id)) {
                 newMessage.seen = true;
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 axios.put(`/api/message/mark/${newMessage._id}`);
