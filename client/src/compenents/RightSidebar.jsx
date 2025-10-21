@@ -17,10 +17,10 @@ const RightSidebar = () => {
   },[messages])
 
   return selectedUser && (
-    <div className="bg-[#8185B2]/10 text-white w-full h-full p-5 relative overflow-y-auto pb-24 border-l border-gray-700/40 rounded-none">
+    <div className="bg-[#8185B2]/10 text-white w-full h-full p-5 pt-4 relative overflow-y-auto pb-24 border-l border-gray-600/40 rounded-l-xl">
 
-      <div className='pt-16 flex flex-col items-center gap-2 text-xs font-light mx-auto'>
-        <img src={selectedUser ?.profilePic || assets.avatar_icon} alt="" 
+  <div className='pt-0 flex flex-col items-center gap-2 text-xs font-light mx-auto'>
+  <img src={selectedUser?.profilePic || assets.avatar_icon} alt="" 
         className='w-20 h-20 rounded-full object-cover'/>
         <h1 className='px-10 text-xl font-medium mx-auto flex items-center gap-2'>
           {Array.isArray(onlineUsers) && onlineUsers.includes(String(selectedUser._id)) &&

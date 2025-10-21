@@ -12,7 +12,9 @@ const ChatContainer = () => {
    
   const {authUser, onlineUsers} = useContext(AuthContext)
 
-  const scrollEnd = useRef();
+  const messagesRef = useRef(null);
+  const inputBarRef = useRef(null);
+  const [bottomPad, setBottomPad] = useState(120); // fallback padding
   const [input, setInput] = useState("");
 
   //handle sending a message
@@ -47,14 +49,28 @@ const handleSendImage = async(e) => {
 
   }, [selectedUser]);
 
+  // Keep messages scrolled to bottom when list changes
   useEffect(() => {
-    if (scrollEnd.current && messages) {
-      scrollEnd.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesRef.current) {
+      const el = messagesRef.current;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, bottomPad]);
+
+  // Track input bar height to pad bottom of messages list and avoid overlap
+  useEffect(() => {
+    const updatePad = () => {
+      const h = inputBarRef.current?.offsetHeight || 0;
+      // add a little breathing space below messages
+      setBottomPad(h + 16);
+    };
+    updatePad();
+    window.addEventListener('resize', updatePad);
+    return () => window.removeEventListener('resize', updatePad);
+  }, []);
 
   return selectedUser ? (
-  <div className='h-full flex flex-col bg-transparent border-r border-gray-700/40'>
+  <div className='h-full flex flex-col bg-transparent'>
 
 
       {/*-------------HEADER---------------- */}
@@ -74,7 +90,7 @@ const handleSendImage = async(e) => {
 
 
       {/*-------------CHAT AREA---------------- */}
-  <div className='flex flex-col flex-1 overflow-y-auto p-3 pb-28'>
+  <div ref={messagesRef} className='flex flex-col flex-1 overflow-y-auto p-3' style={{ paddingBottom: bottomPad }}>
   {messages.map((msg,index)=>(
           <div key={index} className={`flex items-end gap-2 justify-end ${msg.senderId !== authUser._id &&
              'flex-row-reverse'
@@ -92,13 +108,14 @@ const handleSendImage = async(e) => {
             </div>
           </div>
         ))}
-        <div ref={scrollEnd}></div> 
+        {/* spacer to ensure last message isn't hidden under input */}
+        <div className='h-1'></div> 
       </div>
 
 
       {/*-------------BOTTOM AREA---------------- */}
       
-      <div className='sticky bottom-0 left-0 right-0 flex items-center gap-3 p-3 bg-transparent'>
+      <div ref={inputBarRef} className='sticky bottom-0 left-0 right-0 flex items-center gap-3 p-3 bg-transparent'>
         <div className='flex-1 flex items-center bg-gray-800/60 backdrop-blur px-4 py-3 rounded-full border border-gray-600/30'>
           <input onChange={(e) => setInput(e.target.value)} value={input} 
             onKeyDown={(e) =>e.key === 'Enter'? handleSendMessage(e) : null}
@@ -117,7 +134,7 @@ const handleSendImage = async(e) => {
       </div>
     </div>
   ) : (
-    <div className='flex flex-col items-center justify-center gap-2 text-gray-500 bg-white/10 max-md:hidden'>
+    <div className='flex flex-col items-center justify-center gap-2 h-full text-gray-500 bg-white/10 max-md:hidden'>
       <img src={assets.logo_icon} alt="" className='max-w-16' />
       <p className='text-lg font-medium text-white'>Chat anytime, anywhere</p>
     </div>
