@@ -15,6 +15,14 @@ const ChatContainer = () => {
   const messagesRef = useRef(null);
   const inputBarRef = useRef(null);
   const [bottomPad, setBottomPad] = useState(120); // fallback padding
+  const prevMsgCountRef = useRef(0);
+  const prevSelectedRef = useRef(null);
+
+  const scrollToBottom = (behavior = 'auto') => {
+    const el = messagesRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  };
   const [input, setInput] = useState("");
 
   //handle sending a message
@@ -49,13 +57,29 @@ const handleSendImage = async(e) => {
 
   }, [selectedUser]);
 
-  // Keep messages scrolled to bottom when list changes
+  // Smooth scroll on new message appended
   useEffect(() => {
-    if (messagesRef.current) {
-      const el = messagesRef.current;
-      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    const isNewMsg = (messages?.length || 0) > (prevMsgCountRef.current || 0);
+    if (isNewMsg) {
+      scrollToBottom('smooth');
+    } else {
+      // maintain position when not strictly new messages (e.g., edits)
     }
-  }, [messages, bottomPad]);
+    prevMsgCountRef.current = messages?.length || 0;
+  }, [messages]);
+
+  // On layout changes (like input bar height), ensure bottom stays visible without moving sidebars
+  useEffect(() => {
+    scrollToBottom('auto');
+  }, [bottomPad]);
+
+  // Instant scroll when switching to another conversation
+  useEffect(() => {
+    if (selectedUser && prevSelectedRef.current !== selectedUser._id) {
+      scrollToBottom('auto');
+    }
+    prevSelectedRef.current = selectedUser ? selectedUser._id : null;
+  }, [selectedUser]);
 
   // Track input bar height to pad bottom of messages list and avoid overlap
   useEffect(() => {
@@ -70,7 +94,7 @@ const handleSendImage = async(e) => {
   }, []);
 
   return selectedUser ? (
-  <div className='h-full flex flex-col bg-transparent'>
+  <div className='h-full min-h-0 flex flex-col bg-transparent'>
 
 
       {/*-------------HEADER---------------- */}
@@ -90,7 +114,7 @@ const handleSendImage = async(e) => {
 
 
       {/*-------------CHAT AREA---------------- */}
-  <div ref={messagesRef} className='flex flex-col flex-1 overflow-y-auto p-3' style={{ paddingBottom: bottomPad }}>
+  <div ref={messagesRef} className='flex flex-col flex-1 min-h-0 overflow-y-auto p-3' style={{ paddingBottom: bottomPad }}>
   {messages.map((msg,index)=>(
           <div key={index} className={`flex items-end gap-2 justify-end ${msg.senderId !== authUser._id &&
              'flex-row-reverse'
